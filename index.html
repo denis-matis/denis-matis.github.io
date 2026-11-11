@@ -1,9 +1,277 @@
-<html>
-
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Spese">
+<title>Spese</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9EFEE;--surface:#fff;--ink:#12201E;--ink-on:#fff;--muted:#5B6B68;--line:#D3DDDB;--in:#12805A;--out:#B02F57;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1716;--surface:#172321;--ink:#E8F1EF;--ink-on:#0F1716;--muted:#93A6A2;--line:#263734;--in:#3FC592;--out:#F0668D;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1716;--surface:#172321;--ink:#E8F1EF;--ink-on:#0F1716;--muted:#93A6A2;--line:#263734;--in:#3FC592;--out:#F0668D;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.4 "DM Sans",system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:480px;margin:0 auto;padding:16px 16px 96px}
+h1,h2{margin:0;font-weight:700}
+h2{font-size:15px;color:var(--muted);margin:24px 0 8px;font-weight:500}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:12px;padding:4px;gap:4px}
+button{font:inherit;color:inherit;cursor:pointer}
+.seg button{border:0;background:none;padding:10px;border-radius:9px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+.amount{display:flex;align-items:baseline;gap:8px;margin:20px 0 4px;border-bottom:2px solid var(--line);padding-bottom:6px}
+.amount:focus-within{border-color:var(--ink)}
+.amount span{font-size:28px;font-weight:700;color:var(--muted)}
+.amount input{flex:1;min-width:0;border:0;background:none;color:var(--ink);font:700 44px/1.1 "DM Sans",system-ui,sans-serif;outline:none;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.chips button{border:1px solid var(--line);background:none;border-radius:999px;padding:8px 14px}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--ink-on);border-color:var(--ink)}
+.row2{display:grid;grid-template-columns:1fr 150px;gap:8px}
+input[type=text],input[type=date]{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:12px;font:inherit;min-width:0}
+.primary{width:100%;margin-top:16px;border:0;border-radius:14px;padding:16px;font-weight:700;font-size:17px;background:var(--ink);color:var(--ink-on)}
+:focus-visible{outline:3px solid var(--in);outline-offset:2px}
+.err{color:var(--out);min-height:1.4em;margin:8px 0 0;font-size:14px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.nav button{border:1px solid var(--line);background:var(--surface);border-radius:12px;width:44px;height:44px;font-size:20px}
+.nav h1{font-size:20px;text-transform:capitalize}
+.balance{font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.sub{color:var(--muted);font-size:14px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.pair b{display:block;font-size:20px}
+.in{color:var(--in)}.out{color:var(--out)}
+.bar{margin:10px 0}.bar .t{display:flex;justify-content:space-between;font-size:15px}
+.bar i{display:block;height:8px;border-radius:4px;background:var(--out);margin-top:4px;opacity:.85}
+.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .m{flex:1;min-width:0}
+.item .m div:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .x{border:0;background:none;color:var(--muted);font-size:22px;width:36px;height:36px}
+.empty{color:var(--muted);text-align:center;padding:12px 0}
+.link{border:0;background:none;color:var(--muted);text-decoration:underline;padding:12px 0;font-size:14px}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs button{border:0;background:none;padding:16px;font-weight:700;color:var(--muted)}
+.tabs button[aria-current="page"]{color:var(--ink);box-shadow:inset 0 3px 0 var(--ink)}
+#toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-on);padding:10px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;font-weight:700;white-space:nowrap}
+#toast.on{opacity:1}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
 <body>
-  <h1>Denis</h1>
-  <p>Welcome to my website!</p>
-  <img src="https://content.codecademy.com/articles/github-pages-via-web-app/happy-ice-cream.gif" />
-</body>
+<main>
+  <section id="v-add">
+    <h2>Nuova voce</h2>
+    <div class="card">
+      <div class="seg" role="group" aria-label="Tipo di voce">
+        <button id="t-out" aria-pressed="true">Uscita</button>
+        <button id="t-in" aria-pressed="false">Entrata</button>
+      </div>
+      <label class="amount"><span>€</span><input id="amt" inputmode="decimal" placeholder="0,00" autocomplete="off" aria-label="Importo"></label>
+      <div class="chips" id="cats" role="group" aria-label="Categoria"></div>
+      <div class="row2">
+        <input type="text" id="note" placeholder="Nota (facoltativa)" aria-label="Nota">
+        <input type="date" id="date" aria-label="Data">
+      </div>
+      <p class="err" id="err" role="alert"></p>
+      <button class="primary" id="save">Salva spesa</button>
+    </div>
+  </section>
 
+  <section id="v-month" hidden>
+    <div class="nav">
+      <button id="prev" aria-label="Mese precedente">‹</button>
+      <h1 id="mname"></h1>
+      <button id="next" aria-label="Periodo successivo">›</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <label class="sub" for="pstart">Questo periodo inizia il (cambialo se lo stipendio arriva prima o dopo)</label>
+      <input type="date" id="pstart" style="margin-top:8px">
+      <button class="link" id="preset">Ripristina il giorno standard</button>
+    </div>
+    <div class="card">
+      <div class="sub">Saldo del mese</div>
+      <div class="balance" id="bal"></div>
+      <div class="pair">
+        <div><span class="sub">Entrate</span><b class="in" id="sin"></b></div>
+        <div><span class="sub">Uscite</span><b class="out" id="sout"></b></div>
+      </div>
+    </div>
+    <h2>Uscite per categoria</h2>
+    <div class="card" id="bycat"></div>
+    <h2>Movimenti</h2>
+    <div class="card" id="list"></div>
+    <button class="link" id="csv">Copia i dati del mese (CSV)</button>
+  </section>
+
+  <section id="v-set" hidden>
+    <h2>Periodo</h2>
+    <div class="card">
+      <label class="sub" for="sday">Giorno in cui inizia il periodo (da 1 a 28)</label>
+      <input type="text" inputmode="numeric" id="sday" style="margin-top:8px">
+    </div>
+    <h2>Backup su Fogli Google</h2>
+    <div class="card">
+      <label class="sub" for="surl">URL dello script di Google</label>
+      <input type="text" id="surl" placeholder="https://script.google.com/macros/s/…/exec" style="margin-top:8px">
+      <button class="primary" id="ssave">Salva e invia tutto</button>
+      <p class="sub" id="sstat" role="status"></p>
+    </div>
+  </section>
+</main>
+<nav class="tabs">
+  <button id="tab-add" aria-current="page">Aggiungi</button>
+  <button id="tab-month">Periodo</button>
+  <button id="tab-set">Impostazioni</button>
+</nav>
+<div id="toast" role="status"></div>
+
+<script>
+const KEY = "spese-v1";
+const CATS = { out: ["Cibo", "Trasporti", "Casa", "Svago", "Salute", "Altro"], in: ["Stipendio", "Extra", "Altro"] };
+const eur = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
+const $ = id => document.getElementById(id);
+
+let tx = [];
+let type = "out";
+let cat = "Cibo";
+let pk = "";
+let cfg = { day: 15, url: "", over: {}, queue: [] };
+const CKEY = "spese-cfg-v1";
+function loadCfg() { try { Object.assign(cfg, JSON.parse(localStorage.getItem(CKEY)) || {}); } catch (e) {} }
+function saveCfg() { try { localStorage.setItem(CKEY, JSON.stringify(cfg)); } catch (e) {} }
+function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function key(d) { return iso(d).slice(0, 7); }
+function nextKey(k, n) { const [y, m] = k.split("-").map(Number); return key(new Date(y, m - 1 + n, 1)); }
+function startOf(k) { return cfg.over[k] || k + "-" + String(cfg.day).padStart(2, "0"); }
+function curKey() { const k = key(new Date()); return startOf(k) <= today() ? k : nextKey(k, -1); }
+function addDays(s, n) { const [a, b, c] = s.split("-").map(Number); return iso(new Date(a, b - 1, c + n)); }
+function fd(s, y) { const [a, b, c] = s.split("-").map(Number); return new Date(a, b - 1, c).toLocaleDateString("it-IT", y ? { day: "numeric", month: "short", year: "numeric" } : { day: "numeric", month: "short" }); }
+function stat(m) { $("sstat").textContent = m; }
+let busy = false;
+async function flush() {
+  if (!cfg.url || busy || !navigator.onLine) return;
+  busy = true;
+  try {
+    while (cfg.queue.length) {
+      await fetch(cfg.url, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(cfg.queue[0]) });
+      cfg.queue.shift(); saveCfg();
+    }
+    stat("Tutto inviato al foglio.");
+  } catch (e) { stat("Invio in attesa (" + cfg.queue.length + " da inviare). Riprova con la connessione."); }
+  busy = false;
+}
+function enqueue(p) { cfg.queue.push(p); saveCfg(); flush(); }
+function renderSet() { $("sday").value = cfg.day; $("surl").value = cfg.url; stat(cfg.url ? (cfg.queue.length ? "Da inviare: " + cfg.queue.length : "Collegato al foglio.") : "Backup non ancora collegato."); }
+
+function load() { try { tx = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { tx = []; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(tx)); } catch (e) { toast("Non riesco a salvare su questo dispositivo"); } }
+function today() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function ym(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+let tt; function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 1800); }
+
+function renderCats() {
+  $("cats").innerHTML = CATS[type].map(c => `<button aria-pressed="${c === cat}" data-c="${c}">${c}</button>`).join("");
+}
+function setType(t) {
+  type = t; cat = CATS[t][0];
+  $("t-out").setAttribute("aria-pressed", t === "out");
+  $("t-in").setAttribute("aria-pressed", t === "in");
+  $("save").textContent = t === "out" ? "Salva spesa" : "Salva entrata";
+  renderCats();
+}
+function setTab(name) {
+  $("v-add").hidden = name !== "add";
+  $("v-month").hidden = name !== "month";
+  $("v-set").hidden = name !== "set";
+  $("tab-add").setAttribute("aria-current", name === "add" ? "page" : "false");
+  $("tab-month").setAttribute("aria-current", name === "month" ? "page" : "false");
+  $("tab-set").setAttribute("aria-current", name === "set" ? "page" : "false");
+  if (name === "month") renderMonth();
+  if (name === "set") renderSet();
+  window.scrollTo(0, 0);
+}
+
+function renderMonth() {
+  const s = startOf(pk), e = startOf(nextKey(pk, 1));
+  $("mname").textContent = fd(s) + " – " + fd(addDays(e, -1), true);
+  $("pstart").value = s;
+  const items = tx.filter(x => x.d >= s && x.d < e).sort((a, b) => b.d.localeCompare(a.d) || b.id - a.id);
+  const sin = items.filter(x => x.t === "in").reduce((s, x) => s + x.a, 0);
+  const sout = items.filter(x => x.t === "out").reduce((s, x) => s + x.a, 0);
+  $("sin").textContent = eur.format(sin);
+  $("sout").textContent = eur.format(sout);
+  $("bal").textContent = eur.format(sin - sout);
+  $("bal").className = "balance " + (sin - sout >= 0 ? "in" : "out");
+
+  const by = {};
+  items.filter(x => x.t === "out").forEach(x => by[x.c] = (by[x.c] || 0) + x.a);
+  const rows = Object.entries(by).sort((a, b) => b[1] - a[1]);
+  $("bycat").innerHTML = rows.length
+    ? rows.map(([c, v]) => `<div class="bar"><div class="t"><span>${esc(c)}</span><span>${eur.format(v)}</span></div><i style="width:${Math.max(4, v / sout * 100)}%"></i></div>`).join("")
+    : `<div class="empty">Nessuna uscita in questo mese.</div>`;
+
+  $("list").innerHTML = items.length
+    ? items.map(x => `<div class="item"><div class="m"><div>${esc(x.n || x.c)}</div><div class="sub">${esc(x.c)} · ${x.d.split("-").reverse().join("/")}</div></div><b class="${x.t}">${x.t === "in" ? "+" : "−"}${eur.format(x.a)}</b><button class="x" data-del="${x.id}" aria-label="Elimina voce">×</button></div>`).join("")
+    : `<div class="empty">Nessun movimento. Aggiungine uno dalla scheda Aggiungi.</div>`;
+}
+
+function add() {
+  const n = parseFloat($("amt").value.replace(",", "."));
+  if (!(n > 0)) { $("err").textContent = "Inserisci un importo maggiore di zero."; $("amt").focus(); return; }
+  $("err").textContent = "";
+  const v = { id: Date.now(), d: $("date").value || today(), a: Math.round(n * 100) / 100, t: type, c: cat, n: $("note").value.trim() };
+  tx.push(v);
+  save();
+  enqueue({ kind: "voce", id: v.id, d: v.d, t: v.t, c: v.c, a: v.a, n: v.n });
+  $("amt").value = ""; $("note").value = "";
+  toast(type === "out" ? "Spesa salvata" : "Entrata salvata");
+  $("amt").focus();
+}
+
+$("t-out").onclick = () => setType("out");
+$("t-in").onclick = () => setType("in");
+$("cats").onclick = e => { const b = e.target.closest("button"); if (b) { cat = b.dataset.c; renderCats(); } };
+$("save").onclick = add;
+$("amt").addEventListener("keydown", e => { if (e.key === "Enter") add(); });
+$("tab-add").onclick = () => setTab("add");
+$("tab-month").onclick = () => setTab("month");
+$("prev").onclick = () => { pk = nextKey(pk, -1); renderMonth(); };
+$("next").onclick = () => { pk = nextKey(pk, 1); renderMonth(); };
+$("pstart").onchange = () => { const v = $("pstart").value; if (!v) return; cfg.over[pk] = v; saveCfg(); enqueue({ kind: "conf", k: "P" + pk, v: v }); renderMonth(); toast("Inizio periodo aggiornato"); };
+$("preset").onclick = () => { delete cfg.over[pk]; saveCfg(); enqueue({ kind: "conf", k: "P" + pk, v: "" }); renderMonth(); toast("Giorno standard ripristinato"); };
+$("tab-set").onclick = () => setTab("set");
+$("ssave").onclick = () => {
+  const d = parseInt($("sday").value, 10);
+  if (!(d >= 1 && d <= 28)) { stat("Il giorno deve essere tra 1 e 28."); return; }
+  cfg.day = d; cfg.url = $("surl").value.trim();
+  cfg.queue = [{ kind: "conf", k: "giorno", v: d }]
+    .concat(Object.keys(cfg.over).map(k => ({ kind: "conf", k: "P" + k, v: cfg.over[k] })))
+    .concat(tx.map(x => ({ kind: "voce", id: x.id, d: x.d, t: x.t, c: x.c, a: x.a, n: x.n })));
+  saveCfg(); pk = curKey();
+  stat(cfg.url ? "Invio in corso…" : "Impostazioni salvate. Incolla l’URL per attivare il backup.");
+  flush();
+};
+$("list").onclick = e => {
+  const b = e.target.closest("[data-del]");
+  if (b && confirm("Eliminare questa voce?")) { tx = tx.filter(x => String(x.id) !== b.dataset.del); save(); renderMonth(); toast("Voce eliminata"); }
+};
+$("csv").onclick = async () => {
+  const s0 = startOf(pk), e0 = startOf(nextKey(pk, 1));
+  const rows = tx.filter(x => x.d >= s0 && x.d < e0).sort((a, b) => a.d.localeCompare(b.d));
+  const csv = ["Data;Tipo;Categoria;Importo;Nota"].concat(rows.map(x => [x.d, x.t === "in" ? "Entrata" : "Uscita", x.c, String(x.a).replace(".", ","), '"' + x.n.replace(/"/g, '""') + '"'].join(";"))).join("\n");
+  try { await navigator.clipboard.writeText(csv); toast("Dati copiati"); } catch (e) { toast("Copia non riuscita"); }
+};
+
+load(); loadCfg();
+pk = curKey();
+$("date").value = today();
+setType("out");
+flush();
+window.addEventListener("online", flush);
+</script>
+</body>
 </html>
